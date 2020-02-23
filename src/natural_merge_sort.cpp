@@ -18,7 +18,6 @@ void PrintFile(const char* name) {
 }
 void Split(std::fstream& A, std::fstream* F) {
     int n = 0, x, y;
-    PrintFile("/Templates/c++/files/nataral_merge_sort/src/A.txt");
 	A >> x;
     while (!A.eof()) {
         F[n] << x << " ";
@@ -56,8 +55,8 @@ void Sort(const char* name) {
     PrintFile("F1.txt");
     PrintFile("F2.txt");
     fstream G[2];
-    //std::remove("F1.txt");
-    //std::remove("F2.txt");
+    std::remove("F1.txt");
+    std::remove("F2.txt");
     A.close();
     F[0].close();
     F[1].close();

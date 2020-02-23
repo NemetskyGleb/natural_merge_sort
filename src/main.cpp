@@ -3,6 +3,6 @@
 
 int main() {
 	using namespace std;
-	Sort("/Templates/c++/files/nataral_merge_sort/src/A.txt");
+	Sort("A.txt");
 	return 0;
 }
