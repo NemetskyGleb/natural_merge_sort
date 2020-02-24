@@ -5,5 +5,5 @@
 void PrintFile(const char*);
 void Sort(const char* name);
 void Split(std::fstream& A, std::fstream* F);
-void Merge();
+void Merge(std::fstream* F, std::fstream* G);
 #endif
