@@ -34,7 +34,7 @@ void Split(std::fstream& A, std::fstream* F) {
                 F[n] << x << " ";
                 A >> y;
 			}
-       // F[n] << "-1 "; // метка конца упор отрезка
+        F[n] << "-1 "; // метка конца упор отрезка
 		x = y;
 		n = 1 - n;
 	}
@@ -99,7 +99,7 @@ void Sort(const char* name) {
 void Merge(std::fstream* F, std::fstream* G) {
     using namespace std;
 	int x[2];
-	int y[2];
+	int y[3];
 	F[0] >> x[0];
 	F[1] >> x[1];
 	int n = 0;
@@ -127,11 +127,12 @@ void Merge(std::fstream* F, std::fstream* G) {
 		}
 		while (!F[0].eof()) {
 			G[n] << x[0];
-			F[0] >> y[0];
-			while (!F[0].eof() && x[0] <= y[0] ){ // check -1
-				x[0] = y[0];
+			F[0] >> y[2];
+			while (!F[0].eof() && y[2] != -1 ){ // check -1
+				y[0] = y[2];
+                x[0] = y[0];
 				G[n] << x[0];
-				F[0] >> y[0];
+				F[0] >> y[2];
 			}
 			x[0] = y[0];
 			n = 1 - n;
