@@ -34,7 +34,6 @@ void Split(std::fstream& A, std::fstream* F) {
                 F[n] << x << " ";
                 A >> y;
 			}
-        F[n] << "-1 "; // метка конца упор отрезка
 		x = y;
 		n = 1 - n;
 	}
@@ -59,26 +58,29 @@ void Sort(const char* name) {
     PrintFile("F2.txt");
     fstream G[2];
     /* Merging */
-    if (!F[1].eof()) {
+    bool flag = false;
+    while(!flag) {
         F[0].open("F1.txt", fstream::in);
         F[1].open("F2.txt", fstream::in);
         if (!F[0] || !F[1]) {
-            cerr << "Error in create F1 and F2 or A! ";
+            cerr << "Error in create F1 and F2! ";
             exit(EXIT_FAILURE);
         }
-        G[0].open("G1.txt", fstream::out);
-        G[1].open("G2.txt", fstream::out);
+        G[0].open("G1.txt", fstream::app);
+        G[1].open("G2.txt", fstream::app);
             if (!G[0] || !G[1]) {
             cerr << "Error in create G1 and G2! ";
             exit(EXIT_FAILURE);
         }
         Merge(F, G);
-    }
-/*     if(!G[1].eof()) {
-        F[0].open("F1.txt", fstream::out);
-        F[1].open("F2.txt", fstream::out);
-        if (!F[0] || !F[1] || !A) {
-            cerr << "Error in create F1 and F2 or A! ";
+        F[0].close(); F[1].close(); G[0].close(); G[1].close();
+        if (FileIsEmpty(F,G)) {
+            break;
+        }
+        F[0].open("F1.txt", fstream::app);
+        F[1].open("F2.txt", fstream::app);
+        if (!F[0] || !F[1]) {
+            cerr << "Error in create F1 and F2";
             exit(EXIT_FAILURE);
         }
         G[0].open("G1.txt", fstream::in);
@@ -88,9 +90,11 @@ void Sort(const char* name) {
             exit(EXIT_FAILURE);
         }
         Merge(G, F);
-    } */
-    std::remove("F1.txt");
-    std::remove("F2.txt");
+        F[0].close(); F[1].close(); G[0].close(); G[1].close();
+        flag = FileIsEmpty(F,G);
+    }
+    //std::remove("F1.txt");
+    //std::remove("F2.txt");
     A.close();
     F[0].close();
     F[1].close();
@@ -99,7 +103,7 @@ void Sort(const char* name) {
 void Merge(std::fstream* F, std::fstream* G) {
     using namespace std;
 	int x[2];
-	int y[3];
+	int y[2];
 	F[0] >> x[0];
 	F[1] >> x[1];
 	int n = 0;
@@ -108,17 +112,17 @@ void Merge(std::fstream* F, std::fstream* G) {
 		if(x[0] < x[1]) 
 			k = 0;
 		else k = 1;
-		G[n] << x[k];
+		G[n] << x[k] << " ";
 		F[k] >> y[k];
 		if (x[k] <= y[k]){
 			x[k] = y[k];
 		}
 		else { // Дописываем хвост из F[1-k]
-			G[n] << x[1-k];
+			G[n] << x[1-k] << " ";
 			F[1-k] >> y[1-k];
 			while (F[1-k].eof() && x[1-k] <= y[1-k]) {
 				x[1-k] = y[1-k];
-				G[n] << x[1-k];
+				G[n] << x[1-k] << " ";
 				F[1-k] >> y[1-k];
 			}
 			x[1-k] = y[1-k];
@@ -126,26 +130,57 @@ void Merge(std::fstream* F, std::fstream* G) {
 			n = 1- n;
 		}
 		while (!F[0].eof()) {
-			G[n] << x[0];
-			F[0] >> y[2];
-			while (!F[0].eof() && y[2] != -1 ){ // check -1
-				y[0] = y[2];
-                x[0] = y[0];
-				G[n] << x[0];
-				F[0] >> y[2];
+			G[n] << x[0] << " ";
+			F[0] >> y[0];
+			while (!F[0].eof() && x[0] <= y[0]) {
+				x[0] = y[0];
+				G[n] << x[0] << " ";
+				F[0] >> y[1];
 			}
 			x[0] = y[0];
 			n = 1 - n;
 		}
 		while (!F[1].eof()) {
-			G[n] << x[1];
+			G[n] << x[1] << " ";
 			F[1] >> y[1];
-			while (F[1].eof() && x[1] <= y[1]){
-				G[n] << x[1];
+			while (!F[1].eof() && x[1] <= y[1]) {
+                x[1] = y[1];
+				G[n] << x[1] << " "; 
 				F[1] >> y[1];
 			}
 			x[1] = y[1];
 			n = 1 - n;
 	    }
     }
+}
+
+
+bool FileIsEmpty(std::fstream* F, std::fstream* G) {
+    using namespace std;
+	G[0].open("G1.txt", ios::in);
+	G[1].open("G2.txt", ios::in);
+	F[0].open("F1.txt", ios::in);
+	F[1].open("F2.txt", ios::in);
+	if (!G[0] || !G[1] || !F[0] || !F[1]) {
+            cerr << "Error in read G1 and G2(F1 and F2)! ";
+            exit(EXIT_FAILURE);
+        }
+    if (F[0].peek() == std::fstream::traits_type::eof()){
+        F[0].close(); F[1].close(); G[0].close(); G[1].close();
+        return true;
+    }
+    if (F[1].peek() == std::fstream::traits_type::eof()){
+        F[0].close(); F[1].close(); G[0].close(); G[1].close();
+        return true;
+    }
+    if (G[0].peek() == std::fstream::traits_type::eof()){
+        F[0].close(); F[1].close(); G[0].close(); G[1].close();
+		return true;
+    }
+    if (G[1].peek() == std::fstream::traits_type::eof()) {
+        F[0].close(); F[1].close(); G[0].close(); G[1].close();
+        return true;
+    }
+    F[0].close(); F[1].close(); G[0].close(); G[1].close();
+    return false;
 }
